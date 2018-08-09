@@ -85,11 +85,11 @@ by default, RxJava is blocking. Everything executes entirely on the thread tha
 Build blocks for RxJava
 The build blocks for RxJava code are the following:
 
-• observables representing sources of data followed by
+* observables representing sources of data followed by
 
-• One or more Operators(a set of methods for modifying and composing the data), followed by,
+* One or more Operators(a set of methods for modifying and composing the data), followed by,
 
-• subscribers (or observers) listening to the observables
+* subscribers (or observers) listening to the observables
 
 
 
@@ -120,9 +120,13 @@ It is also possible to convert the stream before its received by the observers. 
 
 Types of Observable
 There are two types:
-	• Non-Blocking – asynchronous execution is supported and is allowed to unsubscribe at any point in the event stream. On this article, we’ll focus mostly on this kind of type
-	• Blocking – all onNext observer calls will be synchronous, and it is not possible to unsubscribe in the middle of an event stream. We can always convert an Observable into a Blocking Observable, using the method toBlocking:
-	1	BlockingObservable<String> blockingObservable = observable.toBlocking();
+
+* Non-Blocking – asynchronous execution is supported and is allowed to unsubscribe at any point in the event stream. On this article, we’ll focus mostly on this kind of type
+* Blocking – all onNext observer calls will be synchronous, and it is not possible to unsubscribe in the middle of an event stream. We can always convert an Observable into a Blocking Observable, using the method toBlocking:
+
+	```java
+	BlockingObservable<String> blockingObservable = observable.toBlocking();
+	```
 
 Observables Can Be Cold or Hot – and it Matters
 
@@ -160,17 +164,17 @@ Convenience methods to create observables
 
 RxJava provides several convenience methods to create observables
 
-• Observable.just("Hello") - Allows to create an observable as wrapper around other data types
+* Observable.just("Hello") - Allows to create an observable as wrapper around other data types
 
-• Observable.fromIterable() - takes an java.lang.Iterable<T> and emits their values in their order in the data structure
+* Observable.fromIterable() - takes an java.lang.Iterable<T> and emits their values in their order in the data structure
   
-• Observable.fromArray() - takes an array and emits their values in their order in the data structure
+* Observable.fromArray() - takes an array and emits their values in their order in the data structure
 
-• Observable.fromCallable() - Allows to create an observable for a java.util.concurrent.Callable<V>
+* Observable.fromCallable() - Allows to create an observable for a java.util.concurrent.Callable<V>
   
-• Observable.fromFuture() - Allows to create an observable for a java.util.concurrent.Future
+* Observable.fromFuture() - Allows to create an observable for a java.util.concurrent.Future
 
-• Observable.interval() - An observable that emits Long objects in a given interval
+* Observable.interval() - An observable that emits Long objects in a given interval
 
 Similar methods exists for the other data types, e.g., *Flowable.just(), Maybe.just() and Single.just.
 
@@ -234,17 +238,19 @@ There are three methods on the observer interface that we want to know about:
   
 The return value for the Observables subscribe method is a subscribe interface:
 
+```java
 String[] letters = {"a", "b", "c", "d", "e", "f", "g"};
 
 Observable<String> observable = Observable.from(letters);
   
-`observable.subscribe(
+observable.subscribe(
 	  i -> result += i,  //OnNext
 	  Throwable::printStackTrace, //OnError
 	  () -> result += "_Completed" //OnCompleted
 	);
-	assertTrue(result.equals("abcdefg_Completed"));`
+	assertTrue(result.equals("abcdefg_Completed"));
 
+```
  Let’s Do Some Simple Multi-Threading 
  
 If you want to do some basic multi-threading in Android using RxJava, all you need to do is have a bit of familiarity with the Schedulers and the observeOn/subscribeOn operators and you are good to go.
@@ -279,10 +285,15 @@ Now, as you have a clear understanding of the different types of Schedulers and 
 You should have a deep understanding of how these two operators work individually and when combined together, to master the true multi-threading capabilities of RxJava.
 subscribeOn()
 In simple words, this operator tells which thread the source observable can emit its items on. You should understand the importance of the word “source” observable here. When you have a chain of observables, the source observable is always at the root or top of the chain from where the emissions originate.
+
 As you have already seen; if we don’t use subscribeOn(), all the emissions happen directly on the thread the code is executed on (in our case, the mainthread).
+
 Now let us direct all the emissions to the computation thread using subscribeOn() along with the Schedulers.computation() Scheduler. Once you run the code snippet below, you will notice all the emissions taking place in one of the computation threads available in the thread pool, RxComputationThreadPool-1.
+
 For brevity purposes, we have not used the full DisposableSubscriber as we don’t need to handle the onError() and onComplete() every time in these simple scenarios. To handle just the onNext(), a single consumer is enough.
+
 It doesn’t really matter where you put the subscribeOn() method in the chain. It only acts on the source observable and controls which thread it emits its items on.
+
 In the example below, you will notice that there are other observables in the chain created by the map() and the filter() operators and subscribeOn()has been placed at the bottom of the chain. But once you run the snippet below, you will notice that it only affects the source observable. This would be more clear once we mix the chain with observeOn() as well. Even if we place subscribeOn() below observeOn(), it will only affect the source observable.
 It is also important to understand that you cannot use subscribeOn()multiple times in your chain. Technically, you can do so, but that won’t have any additional effect. In the snippet below we are chaining three different Schedulers ,but can you guess which Scheduler will the source observable emit its items on?
 If your guess is Schedulers.io(), then bingo! That was a tough guess though, and for that, you will get a five-minute hug the next time we meet. :-P
@@ -297,8 +308,11 @@ observeOn()
 As we’v seen, subscribeOn() instructs the source observable to emit its items on a particular thread, and this is the thread responsible for pushing the items all the way down to the sink Subscriber. Thus, by default, the subscriber will also consume items on that particular thread only.
 But this might not be the expected behaviour you would want all the time from your application. Suppose you want to fetch some data from the network and show it in the UI of your app?
 You essentially have to accomplish two things here -
+
 	• Make the network call in a non-blocking I/O thread
+	
 	• Consume the results in the main (or UI thread) of the application
+	
 You will have an observable that makes a network call in the I/O thread and passes the emissions down to the target subscriber. If you just use subscribeOn() with Schedulers.io(), the final subscriber will also operate in the I/O thread. And as we can’t touch UI components in any other thread, except the main thread, we are out of luck.
 Now, we are in a dire need to switch threads and this is exactly where the observeOn() operator will come into play. In the observable chain, if it encounters an observeOn() somewhere in the chain, then the emissions are immediately switched to the thread specified by it.
 In this contrived example, we have an observable that emits a stream of integers fetched from the network. In real-world use cases, this can be any other asynchronous operation like reading a large file, or fetching data from the database, etc. You can try the snippet and see the results for yourself. Just keep an eye on the thread names in the logs.
@@ -324,16 +338,20 @@ There is one important word in the reactive programming definition: asynchronou
 Functions without side-effects interact with the rest of the program exclusively through their arguments and return values. Side-effects can be very useful and are unavoidable in many cases. But they also have pitfalls. When using reactive programming, you should avoid unnecessary side-effects, and have a clear intention when they do use them. So, embrace immutability, and side-effect free functions. While some cases are justified, abusing side-effects leads to thunderstorms: thread safety.
 That’s the second important point: threads. It’s nice to observe streams and be notified when something interesting happens, but you must never forget who is calling you, or more precisely on which thread your functions are executed. It is heavily recommended to avoid using too many threads in your program. Asynchronous programs relying on multiple threads becomes a tough synchronization puzzle often ending as a deadlock hunt.
 That’s the third point: never block. Because you don’t own the thread calling you, you must be sure to never block it. If you do you may avoid the other items to be emitted, they will be buffered until … the buffer is full (back-pressure can kick in in this case, but this is not the topic of this post). By combining RX and asynchronous IO you have everything you need to write non-blocking code, and if you want more, look at Eclipse Vert.x, a reactive toolkit promoting reactiveness and asynchrony. For instance, the following code shows the Vert.x Web Client and its RX API to retrieve a JSON document from the server and display the name entry:
+
+```java
 	client.get("/api/people/4")
 	.rxSend()
 	.map(HttpResponse::bodyAsJsonObject)
 	.map(json -> json.getString("name"))
 	.subscribe(System.out::println, Throwable::printStackTrace);
-
+```
 Notice the subscribe method in this last snippet. It takes a second method called when one of the processing stages throws an exception. Always catch the exceptions. If you don’t you will spend hours trying to understand what’s going wrong.
  Keep Things Simple
 As you know, “With great power comes great responsibility.” RX provides lots of very cool functions, and it’s easy to lean toward the dark side. Chaining flapmap, retry, debounce, and zip makes you feel like a ninja… BUT, never forget that good code needs to be readable by someone else.
 Let’s take some code…
+
+```java
 	manager.getCampaignById(id)
 	  .flatMap(campaign ->
 	    manager.getCartsForCampaign(campaign)
@@ -354,14 +372,20 @@ Let’s take some code…
 	      getAllCampaigns(rc);
 	    }
 	);
-
+	
+```
 Given an example like this is can be hard to understand no? It chains several asynchronous operations (flatmap), join another set of operations (zip). Reactive programming code first requires a mind-shift. You are notified of asynchronous events. Then, the API can be hard to grasp (just look at the list of operators). Don’t abuse, write comments, explain, or draw diagrams (I’m sure you are an ASCII art artist). RX is powerful, abusing it or not explaining it will make your coworkers grumpy.
  Reactive Programming != Reactive System
 Probably the most confusing part. Using reactive programming does not build a reactive system. Reactive systems, as defined in the reactive manifesto, are an architectural style to build responsive distributed systems. Reactive Systems could be seen as distributed systems done right. A reactive system is characterized by four properties:
+
 	• Responsive: a reactive system needs to handle requests in a reasonable time (I let you define reasonable).
+	
 	• Resilient: a reactive system must stay responsive in the face of failures (crash, timeout, 500 errors… ), so it must be designed for failures and deal with them appropriately.
+	
 	• Elastic: a reactive system must stay responsive under various loads. Consequently, it must scale up and down, and be able to handle the load with minimal resources.
+	
 	• Message driven: components from a reactive system interacts using asynchronous message passing.
+	
 Despite the simplicity of these fundamental principles of reactive systems, building one of them is tricky. Typically, each node needs to embrace an asynchronous non-blocking development model, a task-based concurrency model and uses non-blocking I/O. If you don’t think about these points first, it’s quickly going to be a spaghetti plate.
 Reactive Programming and Reactive eXtension provides a development model to tame the asynchronous beast. By using it wisely, your code is going to stay readable, and understandable. However, using reactive programming does not transform your system into a Reactive System. Reactive Systems are the next level.
 Conclusion
@@ -375,13 +399,14 @@ source.operator1().operator2().operator3().subscribe(consumer);
 source.flatMap(value -> source.operator1().operator2().operator3());
 
 Here, if we imagine ourselves on operator2, looking to the left towards the source, is called the upstream. Looking to the right towards the subscriber/consumer, is called the downstream. This is often more apparent when each element is written on a separate line:
-
+```java
 source
   .operator1()
   .operator2()
   .operator3()
   .subscribe(consumer)
   
+  ```
 Objects in motion
 In RxJava's documentation, emission, emits, item, event, signal, data and message are considered synonyms and represent the object traveling along the dataflow.
 Backpressure
@@ -393,10 +418,12 @@ In RxJava, the dedicated Flowable class is designated to support backpressure 
 Assembly time
 The preparation of dataflows by applying various intermediate operators happens in the so-called assembly time:
 
+
+```java
 Flowable<Integer> flow = Flowable.range(1, 5)
 .map(v -> v* v)
 .filter(v -> v % 3 == 0);
-  
+  ```
 At this point, the data is not flowing yet and no side-effects are happening.
 Subscription time
 This is a temporary state when subscribe() is called on a flow that establishes the chain of processing steps internally:
@@ -404,7 +431,8 @@ flow.subscribe(System.out::println)
 This is when the subscription side-effects are triggered (see doOnSubscribe). Some sources block or start emitting items right away in this state.
 Runtime
 This is the state when the flows are actively emitting items, errors or completion signals:
-  
+
+```java
 Observable.create(emitter -> {
      while (!emitter.isDisposed()) {
          long time = System.currentTimeMillis();
@@ -416,11 +444,13 @@ Observable.create(emitter -> {
      }
 })
 .subscribe(System.out::println, Throwable::printStackTrace);
-  
+	
+  ```
 Practically, this is when the body of the given example above executes.
 Simple background computation
 One of the common use cases for RxJava is to run some computation, network request on a background thread and show the results (or error) on the UI thread:
-  
+ 
+```java
 import io.reactivex.schedulers.Schedulers;
 Flowable.fromCallable(() -> {
     Thread.sleep(1000); //  imitate expensive computation
@@ -430,9 +460,10 @@ Flowable.fromCallable(() -> {
   .observeOn(Schedulers.single())
   .subscribe(System.out::println, Throwable::printStackTrace);
 Thread.sleep(2000); // <--- wait for the flow to finish
-                            
+  ```                         
 This style of chaining methods is called a fluent API which resembles the builder pattern. However, RxJava's reactive types are immutable; each of the method calls returns a new Flowable with added behavior. To illustrate, the example can be rewritten as follows:
   
+```java
 Flowable<String> source = Flowable.fromCallable(() -> {
     Thread.sleep(1000); //  imitate expensive computation
     return "Done";
@@ -441,6 +472,7 @@ Flowable<String> runBackground = source.subscribeOn(Schedulers.io());
 Flowable<String> showForeground = runBackground.observeOn(Schedulers.single());
 showForeground.subscribe(System.out::println, Throwable::printStackTrace);
 Thread.sleep(2000);
+```
 
 Typically, you can move computations or blocking IO to some other thread via subscribeOn. Once the data is ready, you can make sure they get processed on the foreground or GUI thread via observeOn.
 Schedulers
@@ -455,20 +487,23 @@ RxJava operators don't work with Threads or ExecutorServices directly but with
 	• Schedulers.trampoline(): Run work in a sequential and FIFO manner in one of the participating threads, usually for testing purposes.
   
 These are available on all JVM platforms but some specific platforms, such as Android, have their own typical Schedulers defined: AndroidSchedulers.mainThread(), SwingScheduler.instance() or JavaFXSchedulers.gui().
+
 In addition, there is option to wrap an existing Executor (and its subtypes such as ExecutorService) into a Schedulervia Schedulers.from(Executor). This can be used, for example, to have a larger but still fixed pool of threads (unlike computation() and io() respectively).
+
 The Thread.sleep(2000); at the end is no accident. In RxJava the default Schedulers run on daemon threads, which means once the Java main thread exits, they all get stopped and background computations may never happen. Sleeping for some time in this example situations lets you see the output of the flow on the console with time to spare.
+
 Concurrency within a flow
 Flows in RxJava are sequential in nature split into processing stages that may run concurrently with each other:
-
+```java
 Flowable.range(1, 10)
   .observeOn(Schedulers.computation())
   .map(v -> v * v)
   .blockingSubscribe(System.out::println);
-  
+ ``` 
 This example flow squares the numbers from 1 to 10 on the computation Scheduler and consumes the results on the "main" thread (more precisely, the caller thread of blockingSubscribe). However, the lambda v -> v * v doesn't run in parallel for this flow; it receives the values 1 to 10 on the same computation thread one after the other.
 Parallel processing
 Processing the numbers 1 to 10 in parallel is a bit more involved:
-
+```java
 Flowable.range(1, 10)
   .flatMap(v ->
       Flowable.just(v)
@@ -476,22 +511,26 @@ Flowable.range(1, 10)
         .map(w -> w * w)
   )
   .blockingSubscribe(System.out::println);
-  
+  ```
 Practically, parallelism in RxJava means running independent flows and merging their results back into a single flow. The operator flatMap does this by first mapping each number from 1 to 10 into its own individual Flowable, runs them and merges the computed squares.
 Note, however, that flatMap doesn't guarantee any order and the end result from the inner flows may end up interleaved. There are alternative operators:
+
 	• concatMap that maps and runs one inner flow at a time and
 	• concatMapEager which runs all inner flows "at once" but the output flow will be in the order those inner flows were created.
+	
 Alternatively, the Flowable.parallel() operator and the ParallelFlowable type help achieve the same parallel processing pattern:
-
+```java
 Flowable.range(1, 10)
   .parallel()
   .runOn(Schedulers.computation())
   .map(v -> v * v)
   .sequential()
   .blockingSubscribe(System.out::println);
+  ```
 Dependent sub-flows
 flatMap is a powerful operator and helps in a lot of situations. For example, given a service that returns a Flowable, we'd like to call another service with values emitted by the first service:
 
+```java
 Flowable<Inventory> inventorySource = warehouse.getInventoryAsync();
 inventorySource.flatMap(inventoryItem ->
     erp.getDemandAsync(inventoryItem.getId())
@@ -499,60 +538,70 @@ inventorySource.flatMap(inventoryItem ->
         -> System.out.println("Item " + inventoryItem.getName() + " has demand " + demand));
   )
   .subscribe();
+  ```
 Continuations
 Sometimes, when an item has become available, one would like to perform some dependent computations on it. This is sometimes called continuations and, depending on what should happen and what types are involved, may involve various operators to accomplish.
 Dependent
 The most typical scenario is to given a value, invoke another service, await and continue with its result:
-  
+  ```java
 service.apiCall()
 .flatMap(value -> service.anotherApiCall(value))
 .flatMap(next -> service.finalCall(next))
+```
 It is often the case also that later sequences would require values from earlier mappings. This can be achieved by moving the outer flatMap into the inner parts of the previous flatMap for example:
-  
+ ```java 
 service.apiCall()
 .flatMap(value ->
     service.anotherApiCall(value)
     .flatMap(next -> service.finalCallBoth(value, next))
 )
+```
 Here, the original value will be available inside the inner flatMap, courtesy of lambda variable capture.
 Non-dependent
 In other scenarios, the result(s) of the first source/dataflow is irrelevant and one would like to continue with a quasi independent another source. Here, flatMap works as well:
-  
+ ```java 
 Observable continued = sourceObservable.flatMapSingle(ignored -> someSingleSource)
 continued.map(v -> v.toString())
   .subscribe(System.out::println, Throwable::printStackTrace);
+  ```
 however, the continuation in this case stays Observable instead of the likely more appropriate Single. (This is understandable because from the perspective of flatMapSingle, sourceObservable is a multi-valued source and thus the mapping may result in multiple values as well).
   
 Often though there is a way that is somewhat more expressive (and also lower overhead) by using Completable as the mediator and its operator andThen to resume with something else:
-  
+ ```java 
 sourceObservable
   .ignoreElements()           // returns Completable
   .andThen(someSingleSource)
   .map(v -> v.toString())
+  
+  ```
 The only dependency between the sourceObservable and the someSingleSource is that the former should complete normally in order for the latter to be consumed.
   
 Deferred-dependent
 Sometimes, there is an implicit data dependency between the previous sequence and the new sequence that, for some reason, was not flowing through the "regular channels". One would be inclined to write such continuations as follows:
-  
+```java  
 AtomicInteger count = new AtomicInteger();
 Observable.range(1, 10)
   .doOnNext(ignored -> count.incrementAndGet())
   .ignoreElements()
   .andThen(Single.just(count.get()))
   .subscribe(System.out::println);
-
+```
 Unfortunately, this prints 0 because Single.just(count.get()) is evaluated at assembly time when the dataflow hasn't even run yet. We need something that defers the evaluation of this Single source until runtime when the main source completes:
-
+```java
 AtomicInteger count = new AtomicInteger();
 Observable.range(1, 10)
   .doOnNext(ignored -> count.incrementAndGet())
   .ignoreElements()
   .andThen(Single.defer(() -> Single.just(count.get())))
   .subscribe(System.out::println);
+  ```
+  
 or
+```java
 AtomicInteger count = new AtomicInteger();
 Observable.range(1, 10)
   .doOnNext(ignored -> count.incrementAndGet())
   .ignoreElements()
   .andThen(Single.fromCallable(() -> count.get()))
   .subscribe(System.out::println);
+```
