@@ -1,4 +1,7 @@
-# rxjava
+# rxjava and Chronicle Map
+
+https://github.com/OpenHFT/Chronicle-Map
+
 # demo examples
 
 Notes:
