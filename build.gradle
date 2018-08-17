@@ -1,14 +1,19 @@
 group 'rxjava.experiments'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'jdepend'
+apply plugin: 'project-report'
+apply plugin: 'java'
+apply plugin: 'pmd'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 ext {
     rxJavaVersion = '2.2.0'
+    chronicleMapVersion = '3.16.0'
 }
 
 repositories {
@@ -17,4 +22,8 @@ repositories {
 
 dependencies {
     compile "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+    compile "net.openhft:chronicle-map:$chronicleMapVersion"
+
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.2'
 }
