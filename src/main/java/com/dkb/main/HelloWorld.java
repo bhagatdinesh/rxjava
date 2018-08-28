@@ -33,4 +33,7 @@ public class HelloWorld {
     //Hello, World
     //Argument 0: Dinesh
     //Argument 1: Bhagat
+    
+    //NOTE: Java-Thread-Affinity does not work on mac-osx as mentioned here: https://github.com/peter-lawrey/Java-Thread-Affinity/issues/48
+    // https://github.com/peter-lawrey/Java-Thread-Affinity/issues/48#issuecomment-330079892
 }
