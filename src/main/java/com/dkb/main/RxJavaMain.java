@@ -9,7 +9,31 @@ import io.reactivex.observers.DisposableObserver;
 
 public class Main {
 
+        static class Observable1 {
+        public Observable<String> get() {
+            Observable<String> obs = Observable.fromArray("a", "b","c","d","e");
+            return obs.subscribeOn(Schedulers.io());
+        }
+    }
+
+    static class Observable2 {
+        public Observable<String> get() {
+            Observable<String> obs = Observable.fromArray("p", "q","r","s","t");
+            return obs.subscribeOn(Schedulers.io());
+        }
+    }
+    
     public static void main(String[] args) {
+        
+        // Combine two streams in to one
+        
+         Observable1 ob1 = new Observable1();
+        Observable2 ob2 = new Observable2();
+        Observable<String> obs = Observable.zip(ob1.get(), ob2.get(), (String t1, String t2) -> { return t1+t2;});
+
+        System.out.println(obs.toList().blockingGet());
+        //end
+        
         Consumer<String> consumer = new Consumer<String>() {
             @Override
             public void accept(String s) {
