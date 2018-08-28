@@ -30,7 +30,7 @@ public class HelloWorld {
         }
     }
     //output:
-    Hello, World
-    Argument 0: Dinesh
-    Argument 1: Bhagat
+    //Hello, World
+    //Argument 0: Dinesh
+    //Argument 1: Bhagat
 }
