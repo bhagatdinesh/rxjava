@@ -10,6 +10,8 @@ import io.reactivex.observers.DisposableObserver;
 public class Main {
 //NOTE: What will happen if all sources are of different size, 
     // Observation: Getting o/p only for = min(size of all sources)
+    // ref: http://reactivex.io/documentation/operators/zip.html
+    //It will only emit as many items as the number of items emitted by the source Observable that emits the fewest items.
     static class Observable1 {
         public Observable<String> get() {
             Observable<String> obs = Observable.fromArray("a", "b","c","d","e");
