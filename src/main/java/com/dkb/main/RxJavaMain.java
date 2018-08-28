@@ -8,7 +8,8 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 
 public class Main {
-
+//NOTE: What will happen if all sources are of different size, 
+    // Observation: Getting o/p only for = min(size of all sources)
     static class Observable1 {
         public Observable<String> get() {
             Observable<String> obs = Observable.fromArray("a", "b","c","d","e");
