@@ -19,7 +19,67 @@ public class Main {
     static class Observable2 {
         public Observable<String> get() {
             Observable<String> obs = Observable.fromArray("p", "q","r","s","t");
-            return obs.subscribeOn(Schedulers.io());
+            Consumer<String> onNext = new Consumer() {
+
+                @Override
+                public void accept(Object o) throws Exception {
+                    System.out.println("on next:" + Thread.currentThread());
+                }
+            };
+            Consumer<Throwable> onError = new Consumer() {
+
+                @Override
+                public void accept(Object o) throws Exception {
+                    System.out.println("on error:" + Thread.currentThread());
+                }
+            };
+            Action act = new Action() {
+                @Override
+                public void run() throws Exception {
+                    System.out.println("On completed:" + Thread.currentThread());
+                }
+            };
+            Consumer<Disposable> onsubscribe = new Consumer() {
+
+                @Override
+                public void accept(Object o) throws Exception {
+                    System.out.println("on onsubscribe:" + Thread.currentThread());
+                }
+            };
+            //output
+            /*  on onsubscribe:Thread[main,5,main]
+                on next:Thread[RxCachedThreadScheduler-1,5,main]
+                on next:Thread[RxCachedThreadScheduler-1,5,main]
+                on next:Thread[RxCachedThreadScheduler-1,5,main]
+                on next:Thread[RxCachedThreadScheduler-1,5,main]
+                on next:Thread[RxCachedThreadScheduler-1,5,main]
+                On completed:Thread[RxCachedThreadScheduler-1,5,main]
+                1pa
+                2qb
+                3rc
+                4sd
+                5te
+            */
+            Observable<String> stringObservable = obs.subscribeOn(Schedulers.io());
+            stringObservable.subscribe(onNext, onError, act, onsubscribe);
+            return stringObservable;
+            /* change above 3 lines and check the thread observer runs on
+            obs.subscribe(onNext, onError, act, onsubscribe);
+            Observable<String> stringObservable = obs.subscribeOn(Schedulers.io());
+            return stringObservable;
+            on onsubscribe:Thread[main,5,main]
+            on next:Thread[main,5,main]
+            on next:Thread[main,5,main]
+            on next:Thread[main,5,main]
+            on next:Thread[main,5,main]
+            on next:Thread[main,5,main]
+            On completed:Thread[main,5,main]
+            1pa
+            2qb
+            3rc
+            4sd
+            5te
+            */
         }
     }
     
