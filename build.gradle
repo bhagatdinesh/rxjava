@@ -1,13 +1,15 @@
-group 'rxjava.experiments'
-version '1.0-SNAPSHOT'
-
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'jdepend'
 apply plugin: 'project-report'
 apply plugin: 'java'
 apply plugin: 'pmd'
+plugins {
+  id "org.sonarqube" version "2.7"
+}
 
+group 'rxjava.experiments'
+version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -16,9 +18,7 @@ ext {
     chronicleMapVersion = '3.16.0'
 }
 
-plugins {
-  id "org.sonarqube" version "2.7"
-}
+
 
 repositories {
     mavenCentral()
