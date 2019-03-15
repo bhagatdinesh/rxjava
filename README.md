@@ -1,6 +1,6 @@
-# rxjava and Chronicle Map
+# rxjava and Chronicle Map [![Build Status](https://travis-ci.org/dineshbhagat/rxjava.svg?branch=master)](https://travis-ci.org/dineshbhagat/rxjava)
 
-https://github.com/OpenHFT/Chronicle-Map
+https://github.com/OpenHFT/Chronicle-Map 
 
 # demo examples
 
