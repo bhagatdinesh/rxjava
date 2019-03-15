@@ -16,6 +16,10 @@ ext {
     chronicleMapVersion = '3.16.0'
 }
 
+plugins {
+  id "org.sonarqube" version "2.7"
+}
+
 repositories {
     mavenCentral()
 }
