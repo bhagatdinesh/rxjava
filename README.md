@@ -1,4 +1,4 @@
-# rxjava and Chronicle Map [![Build Status](https://travis-ci.org/dineshbhagat/rxjava.svg?branch=master)](https://travis-ci.org/dineshbhagat/rxjava)
+# rxjava and Chronicle Map [![Build Status](https://travis-ci.org/dineshbhagat/rxjava.svg?branch=master)](https://travis-ci.org/dineshbhagat/rxjava) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rxjava-demo&metric=alert_status)](https://sonarcloud.io/dashboard?id=rxjava-demo)
 
 https://github.com/OpenHFT/Chronicle-Map 
 
