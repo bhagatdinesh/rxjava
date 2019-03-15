@@ -20,6 +20,7 @@ cache:
 addons:
   sonarcloud:
     organization: "dineshbhagat-github"
+    projectKey: "dineshbhagat_rxjava"
     token:
       secure: $SONAR_TOKEN
 
