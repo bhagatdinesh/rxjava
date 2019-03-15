@@ -6,7 +6,7 @@ apply plugin: 'eclipse'
 apply plugin: 'jdepend'
 apply plugin: 'project-report'
 apply plugin: 'java'
-apply plugin: 'pmd'
+//apply plugin: 'pmd'
 
 group 'rxjava.experiments'
 version '1.0-SNAPSHOT'
